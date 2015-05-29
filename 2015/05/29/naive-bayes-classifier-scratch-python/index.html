@@ -1,0 +1,924 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.2"/>
+
+
+
+
+  <meta name="keywords" content="python,机器学习," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.2" />
+
+
+
+
+  <title> naive-bayes-classifier-scratch-python // Eric's Blog </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Eric's Blog</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+
+  <ul id="menu" class="menu">
+     
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          首页
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-categories">
+        <a href="/categories">
+          <i class="menu-item-icon icon-categories"></i> <br />
+          分类
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          归档
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          标签
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-about">
+        <a href="/about">
+          <i class="menu-item-icon icon-about"></i> <br />
+          关于
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              naive-bayes-classifier-scratch-python
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2015-05-29
+        </span>
+
+        
+          <span class="post-category">
+            &nbsp; | &nbsp; 分类于
+            
+              <a href="/categories/Python-机器学习/">Python,机器学习</a>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2015/05/29/naive-bayes-classifier-scratch-python/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/05/29/naive-bayes-classifier-scratch-python/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <h1 id="机器学习之用Python从零实现贝叶斯分类器">机器学习之用Python从零实现贝叶斯分类器</h1><p>原帖在<a href="http://python.jobbole.com/81019/" target="_blank" rel="external">这里</a>,好久没看到这么清晰的机器学习的教程,所以自己也来试试了,选取的数据是Iris的数据,结果准确率很高,平均在94%左右.如果没有特别声明,一下<code>属性</code>一般指的是植物的宽度之类的数据,<code>种类</code>指的是不同种类的植物.</p>
+<h2 id="关于朴素贝叶斯">关于朴素贝叶斯</h2><blockquote>
+<p>朴素贝叶斯算法是一个直观的方法，使用每个属性归属于某个类的概率来做预测。你可以使用这种监督性学习方法，对一个预测性建模问题进行概率建模。<br>给定一个类，朴素贝叶斯假设每个属性归属于此类的概率独立于其余所有属性，从而简化了概率的计算。这种强假定产生了一个快速、有效的方法。<br>给定一个属性值，其属于某个类的概率叫做条件概率。对于一个给定的类值，将每个属性的条件概率相乘，便得到一个数据样本属于某个类的概率。<br>我们可以通过计算样本归属于每个类的概率，然后选择具有最高概率的类来做预测。<br>通常，我们使用分类数据来描述朴素贝叶斯，因为这样容易通过比率来描述、计算。一个符合我们目的、比较有用的算法需要支持数值属性，同时假设每一个数值属性服从正态分布（分布在一个钟形曲线上），这又是一个强假设，但是依然能够给出一个健壮的结果。</p>
+<h2 id="根据花萼和花瓣的长度和宽度预测它的属性">根据花萼和花瓣的长度和宽度预测它的属性</h2><p>本文使用的测试问题是”安德森鸢尾花卉”的属性问题,IRIS数据集一共包括150个数据集,分为三类,每类50个数据,每个数据包含四个属性,分别是花萼和花瓣的长度和宽度,最后1条记录是属性值,0,1,2分别代表三种不同的植物<br>下面是iris数据集的一个样本<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">5.1</span>,<span class="number">3.5</span>,<span class="number">1.4</span>,<span class="number">0.2</span>,<span class="number">0</span></span><br><span class="line"><span class="number">4.9</span>,<span class="number">3.0</span>,<span class="number">1.4</span>,<span class="number">0.2</span>,<span class="number">0</span></span><br><span class="line"><span class="number">4.7</span>,<span class="number">3.2</span>,<span class="number">1.3</span>,<span class="number">0.2</span>,<span class="number">0</span></span><br><span class="line"><span class="number">4.6</span>,<span class="number">3.1</span>,<span class="number">1.5</span>,<span class="number">0.2</span>,<span class="number">0</span></span><br><span class="line"><span class="number">5.0</span>,<span class="number">3.6</span>,<span class="number">1.4</span>,<span class="number">0.2</span>,<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p>基本做法和链接的那篇文章一样</p>
+<h2 id="朴素贝叶斯算法教程">朴素贝叶斯算法教程</h2><blockquote>
+<p>教程分为如下几步：<br>1.处理数据：从CSV文件中载入数据，然后划分为训练集和测试集。<br>2.提取数据特征：提取训练数据集的属性特征，以便我们计算概率并做出预测。<br>3.单一预测：使用数据集的特征生成单个预测。<br>4.多重预测：基于给定测试数据集和一个已提取特征的训练数据集生成预测。<br>5.评估精度：评估对于测试数据集的预测精度作为预测正确率。<br>6.合并代码：使用所有代码呈现一个完整的、独立的朴素贝叶斯算法的实现。</p>
+<h3 id="1-处理数据">1.处理数据</h3><p>CSV模块不太熟,所以我就直接open打开了<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_data</span><span class="params">(filename, ratio=<span class="number">0.67</span>)</span>:</span></span><br><span class="line">    data_set = []</span><br><span class="line">    train_set = []</span><br><span class="line">    fp = open(filename, <span class="string">"r"</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fp:</span><br><span class="line">        data_set.append([float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)])</span><br><span class="line">    limit = int(len(data_set) * ratio)</span><br><span class="line">    <span class="keyword">while</span> len(train_set) &lt; limit:</span><br><span class="line">        index = random.randrange(len(data_set))</span><br><span class="line">        train_set.append(data_set.pop(index))</span><br><span class="line">    <span class="keyword">return</span> data_set, train_set</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p>当然也可以在read的时候取随机<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_data</span><span class="params">(filename, ratio=<span class="number">0.67</span>)</span>:</span></span><br><span class="line">    test_set = []</span><br><span class="line">    train_set = []</span><br><span class="line">    fp = open(filename, <span class="string">"r"</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fp:</span><br><span class="line">        flag = random.randrange(<span class="number">1</span>,<span class="number">101</span>)</span><br><span class="line">        <span class="keyword">if</span> flag <span class="keyword">in</span> range(<span class="number">1</span>, int(ratio * <span class="number">100</span>) + <span class="number">1</span>):</span><br><span class="line">            train_set.append([float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            test_set.append([float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)])</span><br><span class="line">    <span class="keyword">print</span> len(train_set), len(test_set)</span><br><span class="line">    <span class="keyword">return</span> test_set, train_set</span><br></pre></td></tr></table></figure></p>
+<p>再按类别生成key-value对应的数据<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">separateByClass</span><span class="params">(dataset)</span>:</span></span><br><span class="line">    result = defaultdict(list)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(dataset)):</span><br><span class="line">        classType = int(dataset[i][-<span class="number">1</span>])</span><br><span class="line">        result[classType].append(dataset[i][:-<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure></p>
+<h3 id="计算均值还有方差以及概率密度函数">计算均值还有方差以及概率密度函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mean</span><span class="params">(numbers)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> sum(numbers) / float(len(numbers))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stdev</span><span class="params">(numbers)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> math.sqrt(sum([pow(x - mean(numbers), <span class="number">2</span>) <span class="keyword">for</span> x <span class="keyword">in</span> numbers]) / float(len(numbers) - <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成高斯函数并计算某一个值的概率</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">calNumberProbability</span><span class="params">(mean, std, y)</span>:</span></span><br><span class="line">    exponent = math.exp(-(math.pow(y - mean, <span class="number">2</span>)/(<span class="number">2</span>*math.pow(std, <span class="number">2</span>))))</span><br><span class="line">    <span class="keyword">return</span> (<span class="number">1</span> / (math.sqrt(<span class="number">2</span>*math.pi) * std)) * exponent</span><br></pre></td></tr></table></figure>
+<h3 id="训练模型,生成每个属性对应的平均值还有标准差">训练模型,生成每个属性对应的平均值还有标准差</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createMeanStdPair</span><span class="params">(result)</span>:</span></span><br><span class="line">    summarise = defaultdict(list)</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> result:</span><br><span class="line">        <span class="keyword">for</span> type <span class="keyword">in</span> zip(*result[key]):</span><br><span class="line">             summarise[key].append([mean(type), stdev(type)])</span><br><span class="line">    <span class="keyword">return</span> summarise</span><br></pre></td></tr></table></figure>
+<h3 id="预测">预测</h3><p>准备工作都已经做完了,开始正事了,首先要说明,上面的步骤应该用训练数据去培训,下面用测试数据去生成结果.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">labelOfVector</span><span class="params">(summarise, input_vector)</span>:</span></span><br><span class="line">    summarise_prob = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> summarise:</span><br><span class="line">    <span class="comment">#需要把初始概率写在循环里面,因为每个类别初始的概率都是1</span></span><br><span class="line">        init_prob = <span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(len(summarise[key])):</span><br><span class="line">            mean, std = summarise[key][i]</span><br><span class="line">            probability = calNumberProbability(mean, std, input_vector[i])</span><br><span class="line">            init_prob *= probability</span><br><span class="line">        summarise_prob[key] = init_prob</span><br><span class="line">    <span class="keyword">return</span> sorted(summarise_prob.items(),key=<span class="keyword">lambda</span> x:x[<span class="number">1</span>])[-<span class="number">1</span>][<span class="number">0</span>]</span><br></pre></td></tr></table></figure></p>
+<h3 id="计算精度">计算精度</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(summarise, test_set)</span>:</span></span><br><span class="line">    <span class="comment"># 初始正确的数目</span></span><br><span class="line">    count = <span class="number">0</span></span><br><span class="line">    sum_vector = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> test_set:</span><br><span class="line">        sum_vector += len(test_set[key])</span><br><span class="line">        <span class="keyword">for</span> vector <span class="keyword">in</span> test_set[key]:</span><br><span class="line">            label = labelOfVector(summarise, vector)</span><br><span class="line">            <span class="keyword">if</span> label == key:</span><br><span class="line">                count += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"测试数据一共&#123;0&#125;条,正确率为&#123;1&#125;%"</span>.format(sum_vector, (count / float(sum_vector)) * <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+<p>运行程序,得到结果<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">测试数据一共<span class="number">48</span>条,正确率为<span class="number">95.8333333333</span>%</span><br></pre></td></tr></table></figure></p>
+<p>不同种类的植物的区分度很大,且各个属性之间可看作是独立的.</p>
+<p>下面我们来看看用现成的<code>scikit-learn</code>包怎么做.<a href="http://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank" rel="external">官方文档</a><br>测试的问题是“皮马印第安人糖尿病问题”。</p>
+<blockquote>
+<p>这个问题包括768个对于皮马印第安患者的医疗观测细节，记录所描述的瞬时测量取自诸如患者的年纪，怀孕和血液检查的次数。所有患者都是21岁以上（含21岁）的女性，所有属性都是数值型，而且属性的单位各不相同。<br>每一个记录归属于一个类，这个类指明以测量时间为止，患者是否是在5年之内感染的糖尿病。如果是，则为1，否则为0。<br>机器学习文献中已经多次研究了这个标准数据集，好的预测精度为70%-76%。下面是pima-indians.data.csv文件中的一个样本，了解一下我们将要使用的数据。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">6</span>,<span class="number">148</span>,<span class="number">72</span>,<span class="number">35</span>,<span class="number">0</span>,<span class="number">33.6</span>,<span class="number">0.627</span>,<span class="number">50</span>,<span class="number">1</span></span><br><span class="line"><span class="number">1</span>,<span class="number">85</span>,<span class="number">66</span>,<span class="number">29</span>,<span class="number">0</span>,<span class="number">26.6</span>,<span class="number">0.351</span>,<span class="number">31</span>,<span class="number">0</span></span><br><span class="line"><span class="number">8</span>,<span class="number">183</span>,<span class="number">64</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">23.3</span>,<span class="number">0.672</span>,<span class="number">32</span>,<span class="number">1</span></span><br><span class="line"><span class="number">1</span>,<span class="number">89</span>,<span class="number">66</span>,<span class="number">23</span>,<span class="number">94</span>,<span class="number">28.1</span>,<span class="number">0.167</span>,<span class="number">21</span>,<span class="number">0</span></span><br><span class="line"><span class="number">0</span>,<span class="number">137</span>,<span class="number">40</span>,<span class="number">35</span>,<span class="number">168</span>,<span class="number">43.1</span>,<span class="number">2.288</span>,<span class="number">33</span>,<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p>基本方式和上面类似,我们也用高斯,不知道翻译成什么,直接用Gaussian Naive Bayes代替吧</p>
+<h3 id="1-处理数据-1">1.处理数据</h3><p>这里要注意数据都要处理成array格式的<br>步骤和上面的类似,先把初始数据处理成<code>train_data</code>和<code>test_data</code>.有两点不同需要注意一下.</p>
+<ol>
+<li>将测量数据和类别数据分开</li>
+<li>将数据用numpy处理成array格式的<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_data</span><span class="params">(filename, ratio=<span class="number">0.67</span>)</span>:</span></span><br><span class="line">    test_set = []</span><br><span class="line">    train_set = []</span><br><span class="line">    train_features = []</span><br><span class="line">    test_features = []</span><br><span class="line">    fp = open(filename, <span class="string">"r"</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fp:</span><br><span class="line">        flag = random.randrange(<span class="number">1</span>,<span class="number">101</span>)</span><br><span class="line">        <span class="keyword">if</span> flag <span class="keyword">in</span> range(<span class="number">1</span>, int(ratio * <span class="number">100</span>) + <span class="number">1</span>):</span><br><span class="line">            train_set.append([float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)[:-<span class="number">1</span>]])</span><br><span class="line">            train_features.append(int(line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)[-<span class="number">1</span>]))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            test_set.append([float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)[:-<span class="number">1</span>]])</span><br><span class="line">            test_features.append(int(line.replace(<span class="string">"\n"</span>, <span class="string">""</span>).split(<span class="string">','</span>)[-<span class="number">1</span>]))</span><br><span class="line">    <span class="keyword">return</span> np.array(test_set), np.array(train_set), np.array(train_features), np.array(test_features)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>代码稍微有点乱</p>
+<h3 id="2-建立模型">2.建立模型</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> GaussianNB</span><br><span class="line">gnb = GaussianNB()</span><br><span class="line">y_pred = gnb.fit(train_set, train_features).predict(test_set)</span><br><span class="line">print(<span class="string">"split %d rows into train=%d and test=%d rows \nAccuracy: %.2f%%"</span>\</span><br><span class="line">      % (len(test_set) + train_set.shape[<span class="number">0</span>], train_set.shape[<span class="number">0</span>], test_set.shape[<span class="number">0</span>], (test_features == y_pred).sum() * <span class="number">100</span> / float(test_set.shape[<span class="number">0</span>])))</span><br></pre></td></tr></table></figure>
+<p>输出结果如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">split <span class="number">768</span> rows into train=<span class="number">524</span> <span class="keyword">and</span> test=<span class="number">244</span> rows </span><br><span class="line">Accuracy: <span class="number">79.92</span>%</span><br></pre></td></tr></table></figure></p>
+<p>不得不说有<code>scikit-learn</code>包以后简单了很多, T T.</p>
+
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python-机器学习/"> #python,机器学习 </a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/04/20/Building-machine-learning-system/">Building machine learning system</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </div>
+  </div>
+
+
+
+    
+      <div class="comments" id="comments">
+        
+          <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+          </div>
+        
+      </div>
+    
+  </div>
+
+
+        </div>
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview">
+        <div class="site-author motion-element">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="saionixz" />
+          <p class="site-author-name">saionixz</p>
+        </div>
+        <p class="site-description motion-element"></p>
+        <div class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </div>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+              <a href="https://github.com/eric-hua" target="_blank">github</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="https://twitter.com/saionixz" target="_blank">twitter</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="http://weibo.com/u/1700744701" target="_blank">weibo</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="http://www.douban.com/people/41936951/" target="_blank">douban</a>
+            </span>
+            
+          
+        </div>
+
+        
+        
+
+      </div>
+
+      
+        <div class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#机器学习之用Python从零实现贝叶斯分类器"><span class="nav-number">1.</span> <span class="nav-text">机器学习之用Python从零实现贝叶斯分类器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于朴素贝叶斯"><span class="nav-number">1.1.</span> <span class="nav-text">关于朴素贝叶斯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#根据花萼和花瓣的长度和宽度预测它的属性"><span class="nav-number">1.2.</span> <span class="nav-text">根据花萼和花瓣的长度和宽度预测它的属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#朴素贝叶斯算法教程"><span class="nav-number">1.3.</span> <span class="nav-text">朴素贝叶斯算法教程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-处理数据"><span class="nav-number">1.3.1.</span> <span class="nav-text">1.处理数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#计算均值还有方差以及概率密度函数"><span class="nav-number">1.3.2.</span> <span class="nav-text">计算均值还有方差以及概率密度函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#训练模型,生成每个属性对应的平均值还有标准差"><span class="nav-number">1.3.3.</span> <span class="nav-text">训练模型,生成每个属性对应的平均值还有标准差</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预测"><span class="nav-number">1.3.4.</span> <span class="nav-text">预测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#计算精度"><span class="nav-number">1.3.5.</span> <span class="nav-text">计算精度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-处理数据-1"><span class="nav-number">1.3.6.</span> <span class="nav-text">1.处理数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-建立模型"><span class="nav-number">1.3.7.</span> <span class="nav-text">2.建立模型</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </div>
+      
+
+    </div>
+  </div>
+
+
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2015
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">saionixz</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.content img').each(function () {
+        var $image = $(this);
+        var $imageWrapLink = $image.parent('a');
+
+        if ($imageWrapLink.size() < 1) {
+          $imageWrapLink = $image.wrap('<a href="' + this.getAttribute('src') + '"></a>').parent('a');
+        }
+        $imageWrapLink.addClass('fancybox');
+      });
+    });
+    $('.fancybox').fancybox({
+      helpers: {
+        overlay: {
+          locked: false
+        }
+      }
+    });
+  </script>
+
+
+  <script type="text/javascript">
+  function hasMobileUA () {
+    var nav = window.navigator;
+    var ua = nav.userAgent;
+    var pa = /iPad|iPhone|Android|Opera Mini|BlackBerry|webOS|UCWEB|Blazer|PSP|IEMobile|Symbian/g;
+
+    return pa.test(ua);
+  }
+
+  function isDesktop () {
+    return screen.width > 991 && !hasMobileUA();
+  }
+
+  function isTablet () {
+    return screen.width < 992 && screen.width > 767 && hasMobileUA();
+  }
+
+  function isMobile () {
+    return screen.width < 767 && hasMobileUA();
+  }
+
+  function escapeSelector (selector) {
+    return selector.replace(/[!"$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&")
+  }
+</script>
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" id="motion.global">
+  $(document).ready(function () {
+    var body = $('body');
+    var isSidebarVisible = false;
+    var sidebarToggle = $('.sidebar-toggle');
+    var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+    var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+    var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+    var sidebar = $('.sidebar');
+
+    var SIDEBAR_WIDTH = '320px';
+    var SIDEBAR_DISPLAY_DURATION = 300;
+
+    var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+    var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+    var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+    var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+    var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+    var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+    var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+    LogoAndMenuMotion();
+    sidebatToggleMotion();
+    postsListMotion();
+    backToTopMotion();
+
+
+    $(document)
+      .on('sidebar.isShowing', function () {
+        isDesktop() && body.velocity(
+          {paddingRight: SIDEBAR_WIDTH},
+          SIDEBAR_DISPLAY_DURATION
+        );
+        sidebarContentMotion();
+      })
+      .on('sidebar.isHiding', function () {});
+
+    function LogoAndMenuMotion() {
+      $.Velocity.RunSequence([
+        { e: $('.brand'), p: { opacity: 1 }, o: { duration: 100 } },
+        { e: $('.logo'), p: { opacity: 1, top: 0 }, o: { duration: 50} },
+        
+        { e: $('.logo-line-before i'), p: { translateX: "100%" }, o: { duration: 500, sequenceQueue: false } },
+        { e: $('.logo-line-after i'), p: { translateX: "-100%" }, o: { duration: 500, sequenceQueue: false } },
+        
+        { e: $('.site-title'), p: { opacity: 1, top: 0 }, o: { duration: 200 } }
+      ]);
+      $('.menu-item').velocity('transition.slideDownIn', {display: null});
+    }
+
+
+    function backToTopMotion () {
+      var b2top = $('.back-to-top');
+      b2top.on('click', function () {
+        body.velocity('scroll');
+      });
+    }
+
+    function sidebarShowMotion () {
+
+      sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+      sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+      sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+      sidebar.velocity({width: SIDEBAR_WIDTH}, {
+        display: 'block',
+        duration: SIDEBAR_DISPLAY_DURATION,
+        complete: function () {
+          sidebar.addClass('sidebar-active');
+          sidebar.trigger('sidebar.didShow');
+        }
+      });
+      sidebar.trigger('sidebar.isShowing');
+    }
+
+    function sidebarHideMotion () {
+      isDesktop() && body.velocity({paddingRight: 0});
+      sidebar.velocity('reverse');
+
+      sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+      sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+      sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+
+      sidebar.removeClass('sidebar-active');
+      sidebar.trigger('sidebar.isHiding');
+    };
+
+    function sidebarContentMotion () {
+      $('.sidebar .motion-element').velocity(
+        'transition.slideRightIn',
+        {stagger: 50, drag: true}
+      );
+    }
+
+    function postsListMotion () {
+      var postMotionOptions = window.postMotionOptions || {stagger: 300, drag: true};
+      $('.post').velocity('transition.slideDownIn', postMotionOptions);
+    }
+
+    function sidebatToggleMotion () {
+      sidebarToggle.on('click', function () {
+        isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+        isSidebarVisible = !isSidebarVisible;
+      });
+
+      sidebarToggle.hover(function () {
+        if (isSidebarVisible) {return}
+        sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+        sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+        sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+      }, function () {
+        if (isSidebarVisible) {return}
+        sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+      });
+    }
+  });
+
+</script>
+
+
+
+
+
+  
+  
+<script type="text/javascript" id="bootstrap.scrollspy.custom">
+  /* ========================================================================
+  * Bootstrap: scrollspy.js v3.3.2
+  * http://getbootstrap.com/javascript/#scrollspy
+  * ========================================================================
+  * Copyright 2011-2015 Twitter, Inc.
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * ======================================================================== */
+
+  /**
+   * Custom by iissnan
+   *
+   * - Add a `clear.bs.scrollspy` event.
+   * - Esacpe targets selector.
+   */
+
+
+  +function ($) {
+    'use strict';
+
+    // SCROLLSPY CLASS DEFINITION
+    // ==========================
+
+    function ScrollSpy(element, options) {
+      this.$body          = $(document.body)
+      this.$scrollElement = $(element).is(document.body) ? $(window) : $(element)
+      this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
+      this.selector       = (this.options.target || '') + ' .nav li > a'
+      this.offsets        = []
+      this.targets        = []
+      this.activeTarget   = null
+      this.scrollHeight   = 0
+
+      this.$scrollElement.on('scroll.bs.scrollspy', $.proxy(this.process, this))
+      this.refresh()
+      this.process()
+    }
+
+    ScrollSpy.VERSION  = '3.3.2'
+
+    ScrollSpy.DEFAULTS = {
+      offset: 10
+    }
+
+    ScrollSpy.prototype.getScrollHeight = function () {
+      return this.$scrollElement[0].scrollHeight || Math.max(this.$body[0].scrollHeight, document.documentElement.scrollHeight)
+    }
+
+    ScrollSpy.prototype.refresh = function () {
+      var that          = this
+      var offsetMethod  = 'offset'
+      var offsetBase    = 0
+
+      this.offsets      = []
+      this.targets      = []
+      this.scrollHeight = this.getScrollHeight()
+
+      if (!$.isWindow(this.$scrollElement[0])) {
+        offsetMethod = 'position'
+        offsetBase   = this.$scrollElement.scrollTop()
+      }
+
+      this.$body
+        .find(this.selector)
+        .map(function () {
+          var $el   = $(this)
+          var href  = $el.data('target') || $el.attr('href')
+          var $href = /^#./.test(href) && $(escapeSelector(href)) // Need to escape selector.
+
+          return ($href
+            && $href.length
+            && $href.is(':visible')
+            && [[$href[offsetMethod]().top + offsetBase, href]]) || null
+        })
+        .sort(function (a, b) { return a[0] - b[0] })
+        .each(function () {
+          that.offsets.push(this[0])
+          that.targets.push(this[1])
+        })
+
+
+    }
+
+    ScrollSpy.prototype.process = function () {
+      var scrollTop    = this.$scrollElement.scrollTop() + this.options.offset
+      var scrollHeight = this.getScrollHeight()
+      var maxScroll    = this.options.offset + scrollHeight - this.$scrollElement.height()
+      var offsets      = this.offsets
+      var targets      = this.targets
+      var activeTarget = this.activeTarget
+      var i
+
+      if (this.scrollHeight != scrollHeight) {
+        this.refresh()
+      }
+
+      if (scrollTop >= maxScroll) {
+        return activeTarget != (i = targets[targets.length - 1]) && this.activate(i)
+      }
+
+      if (activeTarget && scrollTop < offsets[0]) {
+        $(this.selector).trigger('clear.bs.scrollspy')  // Add a custom event.
+        this.activeTarget = null
+        return this.clear()
+      }
+
+      for (i = offsets.length; i--;) {
+        activeTarget != targets[i]
+          && scrollTop >= offsets[i]
+          && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
+          && this.activate(targets[i])
+      }
+    }
+
+    ScrollSpy.prototype.activate = function (target) {
+      this.activeTarget = target
+
+      this.clear()
+
+      var selector = this.selector +
+        '[data-target="' + target + '"],' +
+        this.selector + '[href="' + target + '"]'
+
+      var active = $(selector)
+        .parents('li')
+        .addClass('active')
+
+      if (active.parent('.dropdown-menu').length) {
+        active = active
+          .closest('li.dropdown')
+          .addClass('active')
+      }
+
+      active.trigger('activate.bs.scrollspy')
+    }
+
+    ScrollSpy.prototype.clear = function () {
+      $(this.selector)
+        .parentsUntil(this.options.target, '.active')
+        .removeClass('active')
+    }
+
+
+    // SCROLLSPY PLUGIN DEFINITION
+    // ===========================
+
+    function Plugin(option) {
+      return this.each(function () {
+        var $this   = $(this)
+        var data    = $this.data('bs.scrollspy')
+        var options = typeof option == 'object' && option
+
+        if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
+        if (typeof option == 'string') data[option]()
+      })
+    }
+
+    var old = $.fn.scrollspy
+
+    $.fn.scrollspy             = Plugin
+    $.fn.scrollspy.Constructor = ScrollSpy
+
+
+    // SCROLLSPY NO CONFLICT
+    // =====================
+
+    $.fn.scrollspy.noConflict = function () {
+      $.fn.scrollspy = old
+      return this
+    }
+
+
+    // SCROLLSPY DATA-API
+    // ==================
+
+    $(window).on('load.bs.scrollspy.data-api', function () {
+      $('[data-spy="scroll"]').each(function () {
+        var $spy = $(this)
+        Plugin.call($spy, $spy.data())
+      })
+    })
+
+  }(jQuery);
+</script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var $sidebarInner = $('.sidebar-inner');
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.didShow', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0 && isDesktop()) {
+        setTimeout(function () {
+          $('.sidebar-toggle').trigger('click');
+        }, 800);
+      }
+    });
+  </script>
+
+
+
+
+  
+
+  
+  
+  
+
+  
+
+    
+      
+    
+
+    <script type="text/javascript">
+      var disqus_shortname = 'erichua-githubio';
+      var disqus_identifier = '2015/05/29/naive-bayes-classifier-scratch-python/';
+      var disqus_url = 'http://yoursite.com/2015/05/29/naive-bayes-classifier-scratch-python/';
+
+      (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }());
+    </script>
+  
+
+
+
+
+  
+</body>
+</html>

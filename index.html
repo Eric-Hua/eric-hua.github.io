@@ -118,6 +118,112 @@
           
           
             
+              <a class="post-title-link" href="/2017/02/07/图灵机器人api接入nao机器/">
+                将图灵机器人api接入nao机器人
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2017-02-07
+        </span>
+
+        
+          <span class="post-category">
+            &nbsp; | &nbsp; 分类于
+            
+              <a href="/categories/Python/">Python</a>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2017/02/07/图灵机器人api接入nao机器/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/07/图灵机器人api接入nao机器/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>用nao自带的<code>choregraphe</code>新建项目，结构如下图所示：<br><img src="http://p1.bpimg.com/584930/c7e35784edfe1819.png" alt="enter image description here"><br>简单来说，一共分为4步</p>
+<ol>
+<li>启动nao自带的录音程序，拍打nao头部启动录音，并输出录音文件所在的路径。</li>
+<li>因图灵机器人暂时只支持纯文本输入，需要将录音转换成文字。</li>
+<li>将转换出来的文字调用图灵机器人api，输出回答。</li>
+<li>根据不同回答配合不同肢体动作。</li>
+</ol>
+<h3 id="设置nao录音程序">设置nao录音程序</h3><p>启动<code>choregraphe</code>，在左下指令盒库搜索<code>Record Sound</code>,如下图：<br><img src="http://p1.bpimg.com/584930/4cf86ab9c6550405.png" alt="enter image description here"><br><code>输入</code>和<code>输出</code>均有4种基本类型：<code>动态</code>，<code>激活</code>，<code>数字</code>，<code>字符串</code><br>具体类型区别详见官方文档。<br>单击进入<code>Record Sound</code>修改<code>Rec. Sound File</code>如下<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">import <span class="tag">time</span></span><br><span class="line"></span><br><span class="line">class <span class="function"><span class="title">MyClass</span><span class="params">(GeneratedClass)</span></span>:</span><br><span class="line">    def __init__(self):</span><br><span class="line">        GeneratedClass.__init__(self, False)</span><br><span class="line">        try:</span><br><span class="line">            self<span class="class">.ad</span> = <span class="function"><span class="title">ALProxy</span><span class="params">(<span class="string">"ALAudioDevice"</span>)</span></span></span><br><span class="line">        except Exception as e:</span><br><span class="line">            self<span class="class">.ad</span> = None</span><br><span class="line">            self<span class="class">.logger</span><span class="class">.error</span>(e)</span><br><span class="line">        self<span class="class">.leds</span> = <span class="function"><span class="title">ALProxy</span><span class="params">(<span class="string">"ALLeds"</span>)</span></span></span><br><span class="line">        self<span class="class">.player</span> = <span class="function"><span class="title">ALProxy</span><span class="params">(<span class="string">'ALAudioPlayer'</span>)</span></span></span><br><span class="line">        self<span class="class">.filepath</span> = <span class="string">""</span></span><br><span class="line"></span><br><span class="line">    def <span class="function"><span class="title">onLoad</span><span class="params">(self)</span></span>:</span><br><span class="line">        self<span class="class">.bIsRecording</span> = False</span><br><span class="line">        self<span class="class">.bIsRunning</span> = False</span><br><span class="line"></span><br><span class="line">    def <span class="function"><span class="title">onUnload</span><span class="params">(self)</span></span>:</span><br><span class="line">        self<span class="class">.bIsRunning</span> = False</span><br><span class="line">        #用ftp把音频上传到<span class="string">'/home/nao/recordings/ringstones/'</span>目录</span><br><span class="line">        <span class="function"><span class="title">if</span><span class="params">( self.bIsRecording )</span></span>:</span><br><span class="line">            self<span class="class">.player</span><span class="class">.post</span><span class="class">.playFileFromPosition</span>(<span class="string">'/home/nao/recordings/ringstones/drip.wav'</span>, <span class="number">0.00</span>, <span class="number">1.00</span>, <span class="number">0.00</span>)</span><br><span class="line">            self<span class="class">.ad</span><span class="class">.stopMicrophonesRecording</span>()</span><br><span class="line">            self<span class="class">.bIsRecording</span> = False</span><br><span class="line"></span><br><span class="line">    def <span class="function"><span class="title">onInput_onStart</span><span class="params">(self, p)</span></span>:</span><br><span class="line">        <span class="function"><span class="title">if</span><span class="params">(self.bIsRunning)</span></span>:</span><br><span class="line">            return</span><br><span class="line">        self<span class="class">.bIsRunning</span> = True</span><br><span class="line">        sGroup = <span class="string">"FaceLeds"</span></span><br><span class="line">        RGB = [<span class="number">0</span>, <span class="number">255</span>, <span class="number">51</span>]</span><br><span class="line">        sExtension = self.<span class="function"><span class="title">toExtension</span><span class="params">( self.getParameter(<span class="string">"Microphones used"</span>)</span></span> )</span><br><span class="line">        self<span class="class">.filepath</span> = <span class="tag">p</span> + sExtension</span><br><span class="line">        <span class="keyword">if</span> self<span class="class">.ad</span>:</span><br><span class="line">            self<span class="class">.leds</span><span class="class">.fadeRGB</span>(sGroup, <span class="number">256</span>*<span class="number">256</span>*RGB[<span class="number">0</span>] + <span class="number">256</span>*RGB[<span class="number">1</span>] + RGB[<span class="number">2</span>], <span class="number">0.5</span>)</span><br><span class="line">            <span class="tag">time</span>.<span class="function"><span class="title">sleep</span><span class="params">(<span class="number">0.2</span>)</span></span></span><br><span class="line">            self<span class="class">.ad</span><span class="class">.startMicrophonesRecording</span>( self<span class="class">.filepath</span> )</span><br><span class="line">            self<span class="class">.bIsRecording</span> = True</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self<span class="class">.logger</span><span class="class">.warning</span>(<span class="string">"No sound recorded"</span>)</span><br><span class="line"></span><br><span class="line">    def <span class="function"><span class="title">onInput_onStop</span><span class="params">(self)</span></span>:</span><br><span class="line">        <span class="function"><span class="title">if</span><span class="params">( self.bIsRunning )</span></span>:</span><br><span class="line">            self.<span class="function"><span class="title">onUnload</span><span class="params">()</span></span></span><br><span class="line">            self.<span class="function"><span class="title">onStopped</span><span class="params">(self.filepath)</span></span></span><br><span class="line"></span><br><span class="line">    def <span class="function"><span class="title">toExtension</span><span class="params">(self, sMicrophones)</span></span>:</span><br><span class="line">        <span class="function"><span class="title">if</span><span class="params">( sMicrophones == <span class="string">"Front head microphone only (.ogg)"</span> )</span></span>:</span><br><span class="line">            return <span class="string">".ogg"</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            return <span class="string">".wav"</span></span><br></pre></td></tr></table></figure></p>
+<p>主要增加了<code>录音开始</code>以及nao机器人<code>眼睛灯</code>的提示。最后输出录音文件所在的位置。</p>
+<h3 id="对录音文件的处理">对录音文件的处理</h3><p>直接看代码吧<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> httplib</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(GeneratedClass)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        GeneratedClass.__init__(self)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onLoad</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#put initialization code here</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onUnload</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#put clean-up code here</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#下面的p就是录音文件所在的位置</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStart</span><span class="params">(self, p)</span>:</span></span><br><span class="line">        <span class="comment">#self.onStopped() #activate the output of the box</span></span><br><span class="line">        accessToken = self.getAccessToken()</span><br><span class="line">        speech_file = str(p)</span><br><span class="line">        self.logger.info(p)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            cmd = self.baidu_asr(speech_file, accessToken)</span><br><span class="line">            self.logger.info(cmd)</span><br><span class="line">        <span class="keyword">except</span> Exception, e:</span><br><span class="line">            cmd = <span class="string">''</span></span><br><span class="line">        self.logger.info(cmd)</span><br><span class="line">        res = self.request_tuling(cmd)</span><br><span class="line">        self.logger.info(res)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">            answer = response_dic[<span class="string">'text'</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</span><br><span class="line">        <span class="keyword">except</span> Exception,e:</span><br><span class="line">            self.logger.error(e)</span><br><span class="line">            answer = <span class="string">'对不起,没能听清你的话呢'</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">            special_value1 = response_dic[<span class="string">'special_value1'</span>]</span><br><span class="line">        <span class="keyword">except</span> Exception,e:</span><br><span class="line">            self.logger.error(e)</span><br><span class="line">            special_value1 = <span class="string">'0'</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">            special_value2 = response_dic[<span class="string">'special_value2'</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</span><br><span class="line">        <span class="keyword">except</span> Exception,e:</span><br><span class="line">            self.logger.error(e)</span><br><span class="line">            special_value2 = <span class="string">''</span></span><br><span class="line"></span><br><span class="line">        self.output([answer, special_value1, special_value2])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStop</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.onUnload() <span class="comment">#it is recommended to reuse the clean-up as the box is stopped</span></span><br><span class="line">        self.onStopped() <span class="comment">#activate the output of the box</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getAccessToken</span><span class="params">(self)</span>:</span></span><br><span class="line">        ApiKey = <span class="string">'your_baidu_speech_apikey'</span></span><br><span class="line">        SecretKey = <span class="string">'your_secret_key'</span></span><br><span class="line">        auth_url = <span class="string">"https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&amp;client_id="</span> +   ApiKey + <span class="string">"&amp;client_secret="</span> + SecretKey</span><br><span class="line">        res = urllib2.urlopen(auth_url)</span><br><span class="line">        json_data = res.read()</span><br><span class="line">        <span class="keyword">return</span> json.loads(json_data)[<span class="string">'access_token'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#请求百度语音识别接口，输入音频文件路径，输出语音识别出来的文本</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">baidu_asr</span><span class="params">(self, speech_file, access_token)</span>:</span></span><br><span class="line">        asr_server = <span class="string">'http://vop.baidu.com/server_api'</span></span><br><span class="line">        <span class="keyword">with</span> open(speech_file, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            speech_data = f.read()</span><br><span class="line">            speech_base64=base64.b64encode(speech_data).decode(<span class="string">'utf-8'</span>)</span><br><span class="line">            speech_length=len(speech_data)</span><br><span class="line">            data_dict = &#123;<span class="string">'format'</span>:<span class="string">'wav'</span>, <span class="string">'rate'</span>:<span class="number">16000</span>, <span class="string">'channel'</span>:<span class="number">1</span>, <span class="string">'cuid'</span>:<span class="string">'005056c00008'</span>,   <span class="string">'token'</span>:access_token, <span class="string">'lan'</span>:<span class="string">'zh'</span>, <span class="string">'speech'</span>:speech_base64, <span class="string">'len'</span>:speech_length&#125;</span><br><span class="line">            json_data = json.dumps(data_dict)</span><br><span class="line">            json_length = len(json_data)</span><br><span class="line">            request = urllib2.Request(url=asr_server)</span><br><span class="line">            request.add_header(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)</span><br><span class="line">            request.add_header(<span class="string">"Content-Length"</span>, json_length)</span><br><span class="line">            fs = urllib2.urlopen(url=request, data=json_data)</span><br><span class="line">            result_str = fs.read()</span><br><span class="line">            json_resp = json.loads(result_str, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">        self.logger.info(<span class="string">'result_str '</span> + result_str)</span><br><span class="line">        <span class="keyword">return</span> json_resp[<span class="string">'result'</span>][<span class="number">0</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#请求图灵接口</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">request_tuling</span><span class="params">(self, cmd)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> cmd:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">''</span></span><br><span class="line">        requrl = <span class="string">'/openapi/api?key=your_tuling_apikey&amp;info=%s'</span> % cmd</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            conn = httplib.HTTPConnection(<span class="string">"www.tuling123.com"</span>, timeout=<span class="number">5</span>)</span><br><span class="line">            conn.request(method=<span class="string">"GET"</span>, url=requrl)</span><br><span class="line">            response = conn.getresponse()</span><br><span class="line">            res = response.read()</span><br><span class="line">            conn.close()</span><br><span class="line">        <span class="keyword">except</span> Exception,e:</span><br><span class="line">            self.logger.error(e)</span><br><span class="line">            res = <span class="string">''</span></span><br><span class="line">        <span class="keyword">return</span> res</span><br></pre></td></tr></table></figure></p>
+<p>主要分为两步：</p>
+<ol>
+<li>请求百度语音识别接口获取识别后的文字</li>
+<li>将识别后的文字请求图灵接口，获取机器人回答<blockquote>
+<p>以上代码包含对运动控制逻辑的处理，涉及隐私，故略去</p>
+<h3 id="根据不同回答不同处理">根据不同回答不同处理</h3><p>此处主要包含对运动指令（前后左右，跳舞）以及普通对话处理<br>简单来说包含运动指令关键词的执行运动控制的指令盒，即上面的<code>controlBox</code>，纯文本对话的执行<code>SayWithBehavior</code>指令盒，控制逻辑主要由<code>decision</code>控制。<br>涉及运动控制的涉及隐私故略去。下面主要说纯文本输出部分。即<code>SayWithBehavior</code>指令盒<br>结构如下图：<br><img src="http://p1.bpimg.com/584930/19341807fabeeed5.png" alt="enter image description here"><br>随机动作指令盒包含不同时长的动作信息，具体可以看nao的官方文档中时间轴部分的介绍。<br>最后回复初始状态（<code>站立</code>）</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="遗留问题">遗留问题</h3><ol>
+<li>每次需要拍打头部才能启动，没研究懂怎么根据声音强度，检测到说话自动调起录音程序</li>
+<li>录音结束时间目前写死了。</li>
+<li>反应比较慢，包括nao录音，语音识别过程，中间有失败没有迅速反馈，实际中会造成用户反复拍打进行识别。</li>
+</ol>
+
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python-nao/"> #python,nao </a>
+          
+        </div>
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2015/08/29/利用requests模块模拟登录百度并请求百小度/">
                 利用requests模块模拟登录百度并请求百小度
               </a>
@@ -604,7 +710,7 @@
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -618,7 +724,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -667,7 +773,7 @@
         <div class="copyright">
   
   &copy; &nbsp; 
-  2015
+  2017
   <span class="with-love">
     <i class="icon-heart"></i>
   </span>

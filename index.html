@@ -119,6 +119,94 @@
           
           
             
+              <a class="post-title-link" href="/2017/04/21/python应用MapReduce统计词频/">
+                python应用MapReduce统计词频
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2017-04-21
+        </span>
+
+        
+          <span class="post-category">
+            &nbsp; | &nbsp; 分类于
+            
+              <a href="/categories/Python/">Python</a>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2017/04/21/python应用MapReduce统计词频/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/21/python应用MapReduce统计词频/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>最早看到这篇文章是在<a href="https://pymotw.com/2/multiprocessing/mapreduce.html" target="_blank" rel="external">这里</a>正好每月工作需要统计用户的<code>词频</code>，传统方法是切词后存入dict然后计数，排序，一方面速度慢，另一方面耗的内存比较高。</p>
+<h2 id="分词"><a href="#分词" class="headerlink" title="分词"></a>分词</h2><p>计算词频首先需要分词，这里采用的是hanlp,调用方法见<a href="http://www.hankcs.com/nlp/python-calls-hanlp.html" target="_blank" rel="external">这里</a>简单来说，先安装<strong>JPype</strong>,再把对应的<strong>jar</strong>包放到任意位置，修改配置<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">startJVM(getDefaultJVMPath(), <span class="string">"-Djava.class.path=jar包位置;jar包所在文件夹"</span>, <span class="string">"-Xms1g"</span>, <span class="string">"-Xmx1g"</span>) <span class="comment"># 启动JVM，Linux需替换分号;为冒号:</span></div><div class="line">HanLP = JClass(<span class="string">'com.hankcs.hanlp.HanLP'</span>)</div></pre></td></tr></table></figure></p>
+<p>另外切词后返回的是arrayList,需要转换成python用的list,如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">CovertJlistToPlist</span><span class="params">(jList)</span>:</span></div><div class="line">    ret = []</div><div class="line">    <span class="keyword">if</span> jList <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="keyword">return</span> ret</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(jList.size()):</div><div class="line">        ret.append(str(jList.get(i)))</div><div class="line">    <span class="keyword">return</span> ret</div></pre></td></tr></table></figure></p>
+<p>另外如果文本比较大，可以考虑拆分成多个文件<br>在linux一条命令就搞定了。分隔成每个文件包含<code>10w</code>行的子文件，另外用mv改名<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">split **.txt <span class="_">-l</span> 100000 <span class="_">-d</span> <span class="_">-a</span> 2 **_&amp;&amp;ls|grep **_|xargs -n1 -i&#123;&#125; mv &#123;&#125; &#123;&#125;.txt</div></pre></td></tr></table></figure></p>
+<h2 id="统计词频"><a href="#统计词频" class="headerlink" title="统计词频"></a>统计词频</h2><p>将代码汇总后如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="comment"># Filename: main.py</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> jpype <span class="keyword">import</span> *</div><div class="line"><span class="keyword">from</span> smr <span class="keyword">import</span> SimpleMapReduce</div><div class="line"><span class="keyword">import</span> string</div><div class="line"><span class="keyword">import</span> multiprocessing</div><div class="line"><span class="keyword">import</span> codecs</div><div class="line"><span class="keyword">import</span> os</div><div class="line"><span class="keyword">import</span> glob</div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</div><div class="line"></div><div class="line">result = defaultdict(int)</div><div class="line">startJVM(getDefaultJVMPath(), <span class="string">r"-Djava.class.path=C:\hanlp\hanlp-1.3.2.jar;C:\hanlp"</span>, <span class="string">"-Xms1g"</span>, <span class="string">"-Xmx1g"</span>) <span class="comment"># 启动JVM，Linux需替换分号;为冒号:</span></div><div class="line">HanLP = JClass(<span class="string">'com.hankcs.hanlp.HanLP'</span>)</div><div class="line"></div><div class="line">chinese_punctuation = <span class="string">r"？，。、‘’“”~·！（）./"</span></div><div class="line">punctuation = chinese_punctuation + string.punctuation</div><div class="line"></div><div class="line"><span class="comment">#将JAVA的List转换成python的List</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">CovertJlistToPlist</span><span class="params">(jList)</span>:</span></div><div class="line">    ret = []</div><div class="line">    <span class="keyword">if</span> jList <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="keyword">return</span> ret</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(jList.size()):</div><div class="line">        ret.append(str(jList.get(i)))</div><div class="line">    <span class="keyword">return</span> ret</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">file_to_words</span><span class="params">(filename)</span>:</span></div><div class="line">    <span class="string">"""Read a file and return a sequence of (word, occurances) values.</span></div><div class="line">    """</div><div class="line">    <span class="comment">#STOP_WORDS = [u"的", u"你"]</span></div><div class="line">    TR = str.maketrans(punctuation, <span class="string">' '</span> * len(punctuation))</div><div class="line"></div><div class="line">    print(multiprocessing.current_process().name, <span class="string">'reading'</span>, filename)</div><div class="line">    output = []</div><div class="line"></div><div class="line">    <span class="keyword">with</span> codecs.open(filename, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:</div><div class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">            line_list = line.strip().split(<span class="string">'\t'</span>)</div><div class="line">            <span class="keyword">if</span> len(line_list) != <span class="number">4</span>:</div><div class="line">                <span class="keyword">continue</span></div><div class="line">            *<span class="number">1</span>, *<span class="number">2</span>, *<span class="number">3</span>, *<span class="number">4</span> = line_list</div><div class="line">            output.append( (question, <span class="number">1</span>) )</div><div class="line">            line = question.translate(TR)</div><div class="line">            segment = HanLP.segment(line)</div><div class="line">            lists = CovertJlistToPlist(segment)</div><div class="line">            <span class="keyword">for</span> words <span class="keyword">in</span> lists:</div><div class="line">                 output.append( (word, <span class="number">1</span>) )</div><div class="line">    <span class="keyword">return</span> output</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">count_words</span><span class="params">(item)</span>:</span></div><div class="line">    <span class="string">"""Convert the partitioned data for a word to a</span></div><div class="line">    tuple containing the word and the number of occurances.</div><div class="line">    """</div><div class="line">    word, occurances = item</div><div class="line">    <span class="keyword">return</span> (word, sum(occurances))</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    <span class="keyword">import</span> operator</div><div class="line"></div><div class="line">    start = time.time()</div><div class="line">    input_files = glob.glob(<span class="string">'E:\\**_data\\*.txt'</span>)</div><div class="line"></div><div class="line">    mapper = SimpleMapReduce(file_to_words, count_words)</div><div class="line">    word_counts = mapper(input_files)</div><div class="line">    word_counts.sort(key=operator.itemgetter(<span class="number">1</span>))</div><div class="line">    word_counts.reverse()</div><div class="line">    shutdownJVM()</div><div class="line">    print(<span class="string">'\nTOP 2000 WORDS BY FREQUENCY\n'</span>)</div><div class="line">    top20 = word_counts[:<span class="number">2000</span>]</div><div class="line">    longest = max(len(word) <span class="keyword">for</span> word, count <span class="keyword">in</span> top20)</div><div class="line">    <span class="keyword">for</span> word, count <span class="keyword">in</span> top20:</div><div class="line">        print(<span class="string">'%-*s: %5s'</span> % (longest+<span class="number">1</span>, word, count))</div><div class="line">    <span class="comment">#</span></div><div class="line">    </div><div class="line">    end = time.time()</div><div class="line"></div><div class="line">    print(<span class="string">"耗时:&#123;&#125;"</span>.format(str(end-start)))</div></pre></td></tr></table></figure></p>
+<p>速度确实很快，之前需要1~2个小时处理的数据现在只需要10分钟就搞定了。另外上面的代码没有写去除<code>停用词</code>以及计算<code>tf-idf</code>值。</p>
+
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python-mapReduce/"> #python,mapReduce </a>
+          
+        </div>
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2017/02/07/图灵机器人api接入nao机器/">
                 将图灵机器人api接入nao机器人
               </a>
@@ -750,7 +838,7 @@
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">7</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -764,7 +852,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">7</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

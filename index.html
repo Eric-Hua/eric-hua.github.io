@@ -283,7 +283,7 @@
           
           
             
-              <a class="post-title-link" href="/2017/02/07/图灵机器人api接入nao机器/">
+              <a class="post-title-link" href="/2017/02/08/图灵机器人api接入nao机器/">
                 将图灵机器人api接入nao机器人
               </a>
             
@@ -293,7 +293,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          发表于 2017-02-07
+          发表于 2017-02-08
         </span>
 
         
@@ -313,8 +313,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2017/02/07/图灵机器人api接入nao机器/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/07/图灵机器人api接入nao机器/"></span>
+            <a href="/2017/02/08/图灵机器人api接入nao机器/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/08/图灵机器人api接入nao机器/"></span>
             </a>
           </span>
           
@@ -533,6 +533,87 @@
         <div class="post-tags">
           
             <a href="/tags/python-gensim-svm/"> #python,gensim,svm </a>
+          
+        </div>
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              <a class="post-title-link" href="/2016/11/12/ubuntu下用Nginx和uwsgi部署flask项目/">
+                ubuntu下用Nginx和uwsgi部署flask项目
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2016-11-12
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2016/11/12/ubuntu下用Nginx和uwsgi部署flask项目/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/12/ubuntu下用Nginx和uwsgi部署flask项目/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>之前简单写过一个接口，下面整理一下，如何配置的过程，算是自己的一个总结。</p>
+<h2 id="服务器的环境配置"><a href="#服务器的环境配置" class="headerlink" title="服务器的环境配置"></a>服务器的环境配置</h2><p>这里选用的是<code>阿里云</code>的服务器，自带了python2.7的环境，也可以自己安装其他版本，最后做一个软链接到<code>/usr/bin</code>目录下。<br>这里主要说一下nginx的安装。<br>简单写了个自动安装脚本，如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line">apt-get purge pcre*</div><div class="line">apt-get remove pcre*</div><div class="line">apt-get autoremove</div><div class="line">wget http://heanet.dl.sourceforge.net/project/pcre/pcre/8.39/pcre-8.39.tar.gz</div><div class="line">tar zxvf pcre-8.39.tar.gz</div><div class="line"><span class="built_in">cd</span> pcre-8.39</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div><div class="line"><span class="built_in">cd</span> ..</div><div class="line">wget http://zlib.net/zlib-1.2.8.tar.gz</div><div class="line">tar zxvf zlib-1.2.8.tar.gz</div><div class="line"><span class="built_in">cd</span> zlib-1.2.8</div><div class="line">./configure</div><div class="line">make &amp;&amp; make install</div><div class="line"><span class="built_in">cd</span> ..</div><div class="line">wget https://www.openssl.org/<span class="built_in">source</span>/openssl-1.0.2h.tar.gz</div><div class="line">tar zxvf openssl-1.0.2h.tar.gz</div><div class="line"><span class="built_in">cd</span> openssl-1.0.2h</div><div class="line">./config</div><div class="line">make &amp;&amp; make install</div><div class="line"><span class="built_in">cd</span> ..</div><div class="line">wget http://luajit.org/download/LuaJIT-2.0.4.tar.gz</div><div class="line">tar zxvf LuaJIT-2.0.4.tar.gz </div><div class="line"><span class="built_in">cd</span> LuaJIT-2.0.4</div><div class="line">make</div><div class="line">make install PREFIX=/usr/<span class="built_in">local</span>/luajit</div><div class="line"><span class="built_in">export</span> LUAJIT_LIB=/usr/<span class="built_in">local</span>/luajit/lib</div><div class="line"><span class="built_in">export</span> LUAJIT_INC=/usr/<span class="built_in">local</span>/luajit/include/luajit-2.0</div><div class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/<span class="built_in">local</span>/luajit/lib:<span class="variable">$LD_LIBRARY_PATH</span></div><div class="line"><span class="built_in">cd</span> ..</div><div class="line">wget https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz</div><div class="line">wget https://github.com/openresty/lua-nginx-module/archive/v0.10.6.tar.gz</div><div class="line">tar -zxvf v0.3.0.tar.gz</div><div class="line">tar -zxvf v0.10.6.tar.gz</div><div class="line">wget http://nginx.org/download/nginx-1.10.1.tar.gz</div><div class="line">tar zxvf nginx-1.10.1.tar.gz</div><div class="line"><span class="built_in">cd</span> nginx-1.10.1</div><div class="line">./configure --prefix=/usr/<span class="built_in">local</span>/nginx \</div><div class="line">        --with-http_realip_module --with-http_sub_module --with-http_gzip_static_module \</div><div class="line">        --with-http_stub_status_module --with-http_addition_module --with-http_ssl_module \</div><div class="line">        --with-pcre=/usr/<span class="built_in">local</span>/src/pcre-8.39 --with-zlib=/usr/<span class="built_in">local</span>/src/zlib-1.2.8 \</div><div class="line">        --with-openssl=/usr/<span class="built_in">local</span>/src/openssl-1.0.2h \</div><div class="line">        --add-module=/usr/<span class="built_in">local</span>/src/ngx_devel_kit-0.3.0 --add-module=/usr/<span class="built_in">local</span>/src/lua-nginx-module-0.10.6</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure></p>
+<p>这里安装的是带lua模块的<strong>Nginx 1.10.1</strong>版本<br>另外写了一个启动脚本，丢在<code>/etc/init.d</code>目录下，记得 <code>chmod +x</code>, 以下是启动脚本。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/sh  </span></div><div class="line"><span class="comment"># chkconfig: 345 86 14  </span></div><div class="line"><span class="comment"># description: Startup and shutdown script for nginx  </span></div><div class="line">NGINX_DIR=/usr/<span class="built_in">local</span>/nginx</div><div class="line"><span class="built_in">export</span> NGINX_DIR  </div><div class="line"></div><div class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></div><div class="line"><span class="string">'start'</span> )</div><div class="line"><span class="built_in">echo</span> <span class="string">"Starting nginx..."</span> </div><div class="line"><span class="variable">$NGINX_DIR</span>/sbin/nginx</div><div class="line">;;</div><div class="line"><span class="string">'reload'</span> )</div><div class="line"><span class="built_in">echo</span> <span class="string">"Reload nginx configuration..."</span> </div><div class="line"><span class="built_in">kill</span> -HUP `cat <span class="variable">$NGINX_DIR</span>/logs/nginx.pid`</div><div class="line">;;</div><div class="line"><span class="string">'stop'</span> )</div><div class="line"><span class="built_in">echo</span> <span class="string">"Stopping nginx..."</span> </div><div class="line"><span class="built_in">kill</span> -15 `cat <span class="variable">$NGINX_DIR</span>/logs/nginx.pid`</div><div class="line">;;</div><div class="line"><span class="string">'list'</span> )</div><div class="line">ps aux | egrep <span class="string">'(PID|nginx)'</span></div><div class="line">;;</div><div class="line"><span class="string">'testconfig'</span> )</div><div class="line"><span class="variable">$NGINX_DIR</span>/sbin/nginx -t</div><div class="line">;;</div><div class="line">*)</div><div class="line"><span class="built_in">echo</span> <span class="string">"usage: `basename <span class="variable">$0</span>` &#123;start|reload|stop|list|testconfig&#125;"</span> </div><div class="line"><span class="keyword">esac</span></div></pre></td></tr></table></figure></p>
+<p>以后可以用<code>service nginx start</code>启动，用<code>service nginx reload</code>重新加载配置文件。<br>服务器基本环境算是完事了。</p>
+<h2 id="上传项目代码"><a href="#上传项目代码" class="headerlink" title="上传项目代码"></a>上传项目代码</h2><p>在上传之前记得<code>pip -freeze requirement.txt</code>导出用的第三方python包。这里可以直接用rz上传或者用ftp上传，用ftp需要安装<code>vsftpd</code>服务，apt-get安装一下，然后修改一下配置文件就可以了。<br>在服务器端还需要安装<code>virtualenv</code>环境，使用<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install virtualenv</div></pre></td></tr></table></figure></p>
+<p>然后新建项目目录，在目录下键入<code>virtualenv venv</code>,就会帮你自动安装好虚拟环境的一些包文件，用<code>source venv/bin/activate</code> 来启动虚拟环境，在虚拟环境中用<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install -r requirement.txt</div></pre></td></tr></table></figure></p>
+<p>安装flask需要的包，requirement是前面导出的。</p>
+<h2 id="Nginx配置"><a href="#Nginx配置" class="headerlink" title="Nginx配置"></a>Nginx配置</h2><p>首先安装<code>UWSGI</code>这里需要说明一下，其实不用nginx也可以，只不过nginx可以做负载均衡，然后修改端口啥的比较方便，用<code>pip install uwsgi</code>来安装。安装完后在项目目录下新建<code>config.ini</code>文件，打开，修改如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">[uwsgi]</div><div class="line"></div><div class="line"># uwsgi 启动时所使用的地址与端口</div><div class="line">socket = 127.0.0.1:8888</div><div class="line"></div><div class="line"># 指向网站目录</div><div class="line">chdir = xxxxx/xxx/xx</div><div class="line"></div><div class="line"># python 启动程序文件</div><div class="line">wsgi-file = manage.py</div><div class="line"></div><div class="line"># python 程序内用以启动的 application 变量名</div><div class="line">callable = app</div><div class="line"></div><div class="line"># 处理器数</div><div class="line">processes = 4</div><div class="line"></div><div class="line"># 线程数</div><div class="line">threads = 2</div><div class="line"></div><div class="line">#状态检测地址</div><div class="line">stats = 127.0.0.1:9191</div><div class="line">~</div></pre></td></tr></table></figure></p>
+<p>保存以后，通过<code>uwsgi config.ini</code>来启动服务。<br>接着配置nginx，默认的配置目录在/usr/local/nginx/conf下，打开<br><code>nginx.conf</code>,增加一个<code>server</code>如下：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="section">server</span> &#123;</div><div class="line">    <span class="attribute">listen</span>  <span class="number">8600</span>;</div><div class="line">    <span class="attribute">server_name</span> localhost; <span class="comment">#公网地址</span></div><div class="line">    <span class="attribute">access_log</span>  /mnt/nginx/logs/blog_demo.log;</div><div class="line"></div><div class="line">    <span class="attribute">location</span> / &#123;</div><div class="line">        <span class="attribute">include</span>      uwsgi_params;</div><div class="line">        <span class="attribute">uwsgi_pass</span>   <span class="number">127.0.0.1:8888</span>;  <span class="comment"># 指向uwsgi 所应用的内部地址,所有请求将转发给uwsgi 处理</span></div><div class="line">        <span class="attribute">uwsgi_param</span> UWSGI_PYHOME xxxxx; <span class="comment"># 指向虚拟环境目录</span></div><div class="line">        <span class="attribute">uwsgi_param</span> UWSGI_CHDIR  xxxxx; <span class="comment"># 指向网站根目录</span></div><div class="line">        <span class="attribute">uwsgi_param</span> UWSGI_SCRIPT manage:app; <span class="comment"># 指定启动程序</span></div><div class="line">      &#125;</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
+<p>然后<code>service nginx reload</code>就可以了，访问服务器IP + 端口试试。域名啥的如果有可以在<code>server_name</code>配置。<br>就酱紫~~~</p>
+
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nginx-python-flask/"> #nginx,python,flask </a>
           
         </div>
       
@@ -965,96 +1046,13 @@
 
 
     
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/04/20/About-python-decorator/">
-                关于python装饰器
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于 2015-04-20
-        </span>
-
-        
-          <span class="post-category">
-            &nbsp; | &nbsp; 分类于
-            
-              <a href="/categories/Python/">Python</a>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/04/20/About-python-decorator/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/04/20/About-python-decorator/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>#Python 装饰器-part1<br>最近刚开始学习python,想着弄个博客记录一下自己学习的过程,同时也是为了总结一下.本人之前没有学过什么编程语言,所以理解有些问题有点苦手,最近就碰到一个很头大的东西叫做<code>装饰器(Decorator)</code>,在<a href="https://stackoverflow.com/questions/739654/how-can-i-make-a-chain-of-function-decorators-in-python/1594484#">stackoverflow</a>看到一篇很好的文章,解析的很详细,很适合我这样的<code>初学者</code>.</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/04/20/About-python-decorator/#more">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/python-编程语言/"> #python,编程语言 </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
   </div>
 
   
+  <div class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&raquo;</a>
+  </div>
+
 
         </div>
       </div>
@@ -1083,7 +1081,7 @@
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1097,7 +1095,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

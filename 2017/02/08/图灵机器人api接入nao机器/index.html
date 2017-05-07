@@ -1,0 +1,919 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="google-site-verification" content="wNDH1trJXwowfL12mAgYohxkIfP28ASLmCoumMoI5ZI" />
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.2"/>
+
+
+
+
+  <meta name="keywords" content="python,nao," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.2" />
+
+
+
+
+  <title> 将图灵机器人api接入nao机器人 // Eric's Blog </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Eric's Blog</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+
+  <ul id="menu" class="menu">
+     
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          首页
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-categories">
+        <a href="/categories">
+          <i class="menu-item-icon icon-categories"></i> <br />
+          分类
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          归档
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          标签
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-about">
+        <a href="/about">
+          <i class="menu-item-icon icon-about"></i> <br />
+          关于
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              将图灵机器人api接入nao机器人
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2017-02-08
+        </span>
+
+        
+          <span class="post-category">
+            &nbsp; | &nbsp; 分类于
+            
+              <a href="/categories/Python/">Python</a>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2017/02/08/图灵机器人api接入nao机器/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/08/图灵机器人api接入nao机器/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <p>用nao自带的<code>choregraphe</code>新建项目，结构如下图所示：<br><img src="http://p1.bpimg.com/584930/c7e35784edfe1819.png" alt="enter image description here"><br>简单来说，一共分为4步</p>
+<ol>
+<li>启动nao自带的录音程序，拍打nao头部启动录音，并输出录音文件所在的路径。</li>
+<li>因图灵机器人暂时只支持纯文本输入，需要将录音转换成文字。</li>
+<li>将转换出来的文字调用图灵机器人api，输出回答。</li>
+<li>根据不同回答配合不同肢体动作。</li>
+</ol>
+<h3 id="设置nao录音程序"><a href="#设置nao录音程序" class="headerlink" title="设置nao录音程序"></a>设置nao录音程序</h3><p>启动<code>choregraphe</code>，在左下指令盒库搜索<code>Record Sound</code>,如下图：<br><img src="http://p1.bpimg.com/584930/4cf86ab9c6550405.png" alt="enter image description here"><br><code>输入</code>和<code>输出</code>均有4种基本类型：<code>动态</code>，<code>激活</code>，<code>数字</code>，<code>字符串</code><br>具体类型区别详见官方文档。<br>单击进入<code>Record Sound</code>修改<code>Rec. Sound File</code>如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(GeneratedClass)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        GeneratedClass.__init__(self, <span class="keyword">False</span>)</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            self.ad = ALProxy(<span class="string">"ALAudioDevice"</span>)</div><div class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">            self.ad = <span class="keyword">None</span></div><div class="line">            self.logger.error(e)</div><div class="line">        self.leds = ALProxy(<span class="string">"ALLeds"</span>)</div><div class="line">        self.player = ALProxy(<span class="string">'ALAudioPlayer'</span>)</div><div class="line">        self.filepath = <span class="string">""</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onLoad</span><span class="params">(self)</span>:</span></div><div class="line">        self.bIsRecording = <span class="keyword">False</span></div><div class="line">        self.bIsRunning = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onUnload</span><span class="params">(self)</span>:</span></div><div class="line">        self.bIsRunning = <span class="keyword">False</span></div><div class="line">        <span class="comment">#用ftp把音频上传到'/home/nao/recordings/ringstones/'目录</span></div><div class="line">        <span class="keyword">if</span>( self.bIsRecording ):</div><div class="line">            self.player.post.playFileFromPosition(<span class="string">'/home/nao/recordings/ringstones/drip.wav'</span>, <span class="number">0.00</span>, <span class="number">1.00</span>, <span class="number">0.00</span>)</div><div class="line">            self.ad.stopMicrophonesRecording()</div><div class="line">            self.bIsRecording = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStart</span><span class="params">(self, p)</span>:</span></div><div class="line">        <span class="keyword">if</span>(self.bIsRunning):</div><div class="line">            <span class="keyword">return</span></div><div class="line">        self.bIsRunning = <span class="keyword">True</span></div><div class="line">        sGroup = <span class="string">"FaceLeds"</span></div><div class="line">        RGB = [<span class="number">0</span>, <span class="number">255</span>, <span class="number">51</span>]</div><div class="line">        sExtension = self.toExtension( self.getParameter(<span class="string">"Microphones used"</span>) )</div><div class="line">        self.filepath = p + sExtension</div><div class="line">        <span class="keyword">if</span> self.ad:</div><div class="line">            self.leds.fadeRGB(sGroup, <span class="number">256</span>*<span class="number">256</span>*RGB[<span class="number">0</span>] + <span class="number">256</span>*RGB[<span class="number">1</span>] + RGB[<span class="number">2</span>], <span class="number">0.5</span>)</div><div class="line">            time.sleep(<span class="number">0.2</span>)</div><div class="line">            self.ad.startMicrophonesRecording( self.filepath )</div><div class="line">            self.bIsRecording = <span class="keyword">True</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self.logger.warning(<span class="string">"No sound recorded"</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">if</span>( self.bIsRunning ):</div><div class="line">            self.onUnload()</div><div class="line">            self.onStopped(self.filepath)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">toExtension</span><span class="params">(self, sMicrophones)</span>:</span></div><div class="line">        <span class="keyword">if</span>( sMicrophones == <span class="string">"Front head microphone only (.ogg)"</span> ):</div><div class="line">            <span class="keyword">return</span> <span class="string">".ogg"</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> <span class="string">".wav"</span></div></pre></td></tr></table></figure>
+<p>主要增加了<code>录音开始</code>以及nao机器人<code>眼睛灯</code>的提示。最后输出录音文件所在的位置。</p>
+<h3 id="对录音文件的处理"><a href="#对录音文件的处理" class="headerlink" title="对录音文件的处理"></a>对录音文件的处理</h3><p>直接看代码吧<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> urllib2</div><div class="line"><span class="keyword">import</span> json</div><div class="line"><span class="keyword">import</span> base64</div><div class="line"><span class="keyword">import</span> httplib</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(GeneratedClass)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        GeneratedClass.__init__(self)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onLoad</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment">#put initialization code here</span></div><div class="line">        <span class="keyword">pass</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onUnload</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment">#put clean-up code here</span></div><div class="line">        <span class="keyword">pass</span></div><div class="line"></div><div class="line">    <span class="comment">#下面的p就是录音文件所在的位置</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStart</span><span class="params">(self, p)</span>:</span></div><div class="line">        <span class="comment">#self.onStopped() #activate the output of the box</span></div><div class="line">        accessToken = self.getAccessToken()</div><div class="line">        speech_file = str(p)</div><div class="line">        self.logger.info(p)</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            cmd = self.baidu_asr(speech_file, accessToken)</div><div class="line">            self.logger.info(cmd)</div><div class="line">        <span class="keyword">except</span> Exception, e:</div><div class="line">            cmd = <span class="string">''</span></div><div class="line">        self.logger.info(cmd)</div><div class="line">        res = self.request_tuling(cmd)</div><div class="line">        self.logger.info(res)</div><div class="line"></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</div><div class="line">            answer = response_dic[<span class="string">'text'</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</div><div class="line">        <span class="keyword">except</span> Exception,e:</div><div class="line">            self.logger.error(e)</div><div class="line">            answer = <span class="string">'对不起,没能听清你的话呢'</span></div><div class="line"></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</div><div class="line">            special_value1 = response_dic[<span class="string">'special_value1'</span>]</div><div class="line">        <span class="keyword">except</span> Exception,e:</div><div class="line">            self.logger.error(e)</div><div class="line">            special_value1 = <span class="string">'0'</span></div><div class="line"></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            response_dic = json.loads(res, encoding=<span class="string">'utf-8'</span>)</div><div class="line">            special_value2 = response_dic[<span class="string">'special_value2'</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</div><div class="line">        <span class="keyword">except</span> Exception,e:</div><div class="line">            self.logger.error(e)</div><div class="line">            special_value2 = <span class="string">''</span></div><div class="line"></div><div class="line">        self.output([answer, special_value1, special_value2])</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onInput_onStop</span><span class="params">(self)</span>:</span></div><div class="line">        self.onUnload() <span class="comment">#it is recommended to reuse the clean-up as the box is stopped</span></div><div class="line">        self.onStopped() <span class="comment">#activate the output of the box</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getAccessToken</span><span class="params">(self)</span>:</span></div><div class="line">        ApiKey = <span class="string">'your_baidu_speech_apikey'</span></div><div class="line">        SecretKey = <span class="string">'your_secret_key'</span></div><div class="line">        auth_url = <span class="string">"https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&amp;client_id="</span> +   ApiKey + <span class="string">"&amp;client_secret="</span> + SecretKey</div><div class="line">        res = urllib2.urlopen(auth_url)</div><div class="line">        json_data = res.read()</div><div class="line">        <span class="keyword">return</span> json.loads(json_data)[<span class="string">'access_token'</span>]</div><div class="line"></div><div class="line">    <span class="comment">#请求百度语音识别接口，输入音频文件路径，输出语音识别出来的文本</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">baidu_asr</span><span class="params">(self, speech_file, access_token)</span>:</span></div><div class="line">        asr_server = <span class="string">'http://vop.baidu.com/server_api'</span></div><div class="line">        <span class="keyword">with</span> open(speech_file, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</div><div class="line">            speech_data = f.read()</div><div class="line">            speech_base64=base64.b64encode(speech_data).decode(<span class="string">'utf-8'</span>)</div><div class="line">            speech_length=len(speech_data)</div><div class="line">            data_dict = &#123;<span class="string">'format'</span>:<span class="string">'wav'</span>, <span class="string">'rate'</span>:<span class="number">16000</span>, <span class="string">'channel'</span>:<span class="number">1</span>, <span class="string">'cuid'</span>:<span class="string">'005056c00008'</span>,   <span class="string">'token'</span>:access_token, <span class="string">'lan'</span>:<span class="string">'zh'</span>, <span class="string">'speech'</span>:speech_base64, <span class="string">'len'</span>:speech_length&#125;</div><div class="line">            json_data = json.dumps(data_dict)</div><div class="line">            json_length = len(json_data)</div><div class="line">            request = urllib2.Request(url=asr_server)</div><div class="line">            request.add_header(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)</div><div class="line">            request.add_header(<span class="string">"Content-Length"</span>, json_length)</div><div class="line">            fs = urllib2.urlopen(url=request, data=json_data)</div><div class="line">            result_str = fs.read()</div><div class="line">            json_resp = json.loads(result_str, encoding=<span class="string">'utf-8'</span>)</div><div class="line">        self.logger.info(<span class="string">'result_str '</span> + result_str)</div><div class="line">        <span class="keyword">return</span> json_resp[<span class="string">'result'</span>][<span class="number">0</span>].encode(<span class="string">'utf-8'</span>, <span class="string">'ignore'</span>)</div><div class="line"></div><div class="line">    <span class="comment">#请求图灵接口</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">request_tuling</span><span class="params">(self, cmd)</span>:</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> cmd:</div><div class="line">            <span class="keyword">return</span> <span class="string">''</span></div><div class="line">        requrl = <span class="string">'/openapi/api?key=your_tuling_apikey&amp;info=%s'</span> % cmd</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            conn = httplib.HTTPConnection(<span class="string">"www.tuling123.com"</span>, timeout=<span class="number">5</span>)</div><div class="line">            conn.request(method=<span class="string">"GET"</span>, url=requrl)</div><div class="line">            response = conn.getresponse()</div><div class="line">            res = response.read()</div><div class="line">            conn.close()</div><div class="line">        <span class="keyword">except</span> Exception,e:</div><div class="line">            self.logger.error(e)</div><div class="line">            res = <span class="string">''</span></div><div class="line">        <span class="keyword">return</span> res</div></pre></td></tr></table></figure></p>
+<p>主要分为两步：</p>
+<ol>
+<li>请求百度语音识别接口获取识别后的文字</li>
+<li>将识别后的文字请求图灵接口，获取机器人回答<blockquote>
+<p>以上代码包含对运动控制逻辑的处理，涉及隐私，故略去</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="根据不同回答不同处理"><a href="#根据不同回答不同处理" class="headerlink" title="根据不同回答不同处理"></a>根据不同回答不同处理</h3><p>此处主要包含对运动指令（前后左右，跳舞）以及普通对话处理<br>简单来说包含运动指令关键词的执行运动控制的指令盒，即上面的<code>controlBox</code>，纯文本对话的执行<code>SayWithBehavior</code>指令盒，控制逻辑主要由<code>decision</code>控制。<br>涉及运动控制的涉及隐私故略去。下面主要说纯文本输出部分。即<code>SayWithBehavior</code>指令盒<br>结构如下图：<br><img src="http://p1.bpimg.com/584930/19341807fabeeed5.png" alt="enter image description here"><br>随机动作指令盒包含不同时长的动作信息，具体可以看nao的官方文档中时间轴部分的介绍。<br>最后回复初始状态（<code>站立</code>）</p>
+<h3 id="遗留问题"><a href="#遗留问题" class="headerlink" title="遗留问题"></a>遗留问题</h3><ol>
+<li>每次需要拍打头部才能启动，没研究懂怎么根据声音强度，检测到说话自动调起录音程序</li>
+<li>录音结束时间目前写死了。</li>
+<li>反应比较慢，包括nao录音，语音识别过程，中间有失败没有迅速反馈，实际中会造成用户反复拍打进行识别。</li>
+</ol>
+
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python-nao/"> #python,nao </a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/28/数据分析周报模板/">数据分析周报模板</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/07/Prophet初探/">Prophet初探</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </div>
+  </div>
+
+
+
+    
+      <div class="comments" id="comments">
+        
+          <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+          </div>
+        
+      </div>
+    
+  </div>
+
+
+        </div>
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview">
+        <div class="site-author motion-element">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="saionixz" />
+          <p class="site-author-name">saionixz</p>
+        </div>
+        <p class="site-description motion-element"></p>
+        <div class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </div>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+              <a href="https://github.com/eric-hua" target="_blank">github</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="https://twitter.com/saionixz" target="_blank">twitter</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="http://weibo.com/u/1700744701" target="_blank">weibo</a>
+            </span>
+            
+              <span class="links-of-author-item">
+              <a href="http://www.douban.com/people/41936951/" target="_blank">douban</a>
+            </span>
+            
+          
+        </div>
+
+        
+        
+
+      </div>
+
+      
+        <div class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#设置nao录音程序"><span class="nav-number">1.</span> <span class="nav-text">设置nao录音程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对录音文件的处理"><span class="nav-number">2.</span> <span class="nav-text">对录音文件的处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#根据不同回答不同处理"><span class="nav-number">3.</span> <span class="nav-text">根据不同回答不同处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遗留问题"><span class="nav-number">4.</span> <span class="nav-text">遗留问题</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </div>
+      
+
+    </div>
+  </div>
+
+
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2017
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">saionixz</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.content img').each(function () {
+        var $image = $(this);
+        var $imageWrapLink = $image.parent('a');
+
+        if ($imageWrapLink.size() < 1) {
+          $imageWrapLink = $image.wrap('<a href="' + this.getAttribute('src') + '"></a>').parent('a');
+        }
+        $imageWrapLink.addClass('fancybox');
+      });
+    });
+    $('.fancybox').fancybox({
+      helpers: {
+        overlay: {
+          locked: false
+        }
+      }
+    });
+  </script>
+
+
+  <script type="text/javascript">
+  function hasMobileUA () {
+    var nav = window.navigator;
+    var ua = nav.userAgent;
+    var pa = /iPad|iPhone|Android|Opera Mini|BlackBerry|webOS|UCWEB|Blazer|PSP|IEMobile|Symbian/g;
+
+    return pa.test(ua);
+  }
+
+  function isDesktop () {
+    return screen.width > 991 && !hasMobileUA();
+  }
+
+  function isTablet () {
+    return screen.width < 992 && screen.width > 767 && hasMobileUA();
+  }
+
+  function isMobile () {
+    return screen.width < 767 && hasMobileUA();
+  }
+
+  function escapeSelector (selector) {
+    return selector.replace(/[!"$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&")
+  }
+</script>
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" id="motion.global">
+  $(document).ready(function () {
+    var body = $('body');
+    var isSidebarVisible = false;
+    var sidebarToggle = $('.sidebar-toggle');
+    var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+    var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+    var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+    var sidebar = $('.sidebar');
+
+    var SIDEBAR_WIDTH = '320px';
+    var SIDEBAR_DISPLAY_DURATION = 300;
+
+    var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+    var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+    var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+    var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+    var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+    var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+    var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+    var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+    LogoAndMenuMotion();
+    sidebatToggleMotion();
+    postsListMotion();
+    backToTopMotion();
+
+
+    $(document)
+      .on('sidebar.isShowing', function () {
+        isDesktop() && body.velocity(
+          {paddingRight: SIDEBAR_WIDTH},
+          SIDEBAR_DISPLAY_DURATION
+        );
+        sidebarContentMotion();
+      })
+      .on('sidebar.isHiding', function () {});
+
+    function LogoAndMenuMotion() {
+      $.Velocity.RunSequence([
+        { e: $('.brand'), p: { opacity: 1 }, o: { duration: 100 } },
+        { e: $('.logo'), p: { opacity: 1, top: 0 }, o: { duration: 50} },
+        
+        { e: $('.logo-line-before i'), p: { translateX: "100%" }, o: { duration: 500, sequenceQueue: false } },
+        { e: $('.logo-line-after i'), p: { translateX: "-100%" }, o: { duration: 500, sequenceQueue: false } },
+        
+        { e: $('.site-title'), p: { opacity: 1, top: 0 }, o: { duration: 200 } }
+      ]);
+      $('.menu-item').velocity('transition.slideDownIn', {display: null});
+    }
+
+
+    function backToTopMotion () {
+      var b2top = $('.back-to-top');
+      b2top.on('click', function () {
+        body.velocity('scroll');
+      });
+    }
+
+    function sidebarShowMotion () {
+
+      sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+      sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+      sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+      sidebar.velocity({width: SIDEBAR_WIDTH}, {
+        display: 'block',
+        duration: SIDEBAR_DISPLAY_DURATION,
+        complete: function () {
+          sidebar.addClass('sidebar-active');
+          sidebar.trigger('sidebar.didShow');
+        }
+      });
+      sidebar.trigger('sidebar.isShowing');
+    }
+
+    function sidebarHideMotion () {
+      isDesktop() && body.velocity({paddingRight: 0});
+      sidebar.velocity('reverse');
+
+      sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+      sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+      sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+
+      sidebar.removeClass('sidebar-active');
+      sidebar.trigger('sidebar.isHiding');
+    };
+
+    function sidebarContentMotion () {
+      $('.sidebar .motion-element').velocity(
+        'transition.slideRightIn',
+        {stagger: 50, drag: true}
+      );
+    }
+
+    function postsListMotion () {
+      var postMotionOptions = window.postMotionOptions || {stagger: 300, drag: true};
+      $('.post').velocity('transition.slideDownIn', postMotionOptions);
+    }
+
+    function sidebatToggleMotion () {
+      sidebarToggle.on('click', function () {
+        isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+        isSidebarVisible = !isSidebarVisible;
+      });
+
+      sidebarToggle.hover(function () {
+        if (isSidebarVisible) {return}
+        sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+        sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+        sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+      }, function () {
+        if (isSidebarVisible) {return}
+        sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+      });
+    }
+  });
+
+</script>
+
+
+
+
+
+  
+  
+<script type="text/javascript" id="bootstrap.scrollspy.custom">
+  /* ========================================================================
+  * Bootstrap: scrollspy.js v3.3.2
+  * http://getbootstrap.com/javascript/#scrollspy
+  * ========================================================================
+  * Copyright 2011-2015 Twitter, Inc.
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * ======================================================================== */
+
+  /**
+   * Custom by iissnan
+   *
+   * - Add a `clear.bs.scrollspy` event.
+   * - Esacpe targets selector.
+   */
+
+
+  +function ($) {
+    'use strict';
+
+    // SCROLLSPY CLASS DEFINITION
+    // ==========================
+
+    function ScrollSpy(element, options) {
+      this.$body          = $(document.body)
+      this.$scrollElement = $(element).is(document.body) ? $(window) : $(element)
+      this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
+      this.selector       = (this.options.target || '') + ' .nav li > a'
+      this.offsets        = []
+      this.targets        = []
+      this.activeTarget   = null
+      this.scrollHeight   = 0
+
+      this.$scrollElement.on('scroll.bs.scrollspy', $.proxy(this.process, this))
+      this.refresh()
+      this.process()
+    }
+
+    ScrollSpy.VERSION  = '3.3.2'
+
+    ScrollSpy.DEFAULTS = {
+      offset: 10
+    }
+
+    ScrollSpy.prototype.getScrollHeight = function () {
+      return this.$scrollElement[0].scrollHeight || Math.max(this.$body[0].scrollHeight, document.documentElement.scrollHeight)
+    }
+
+    ScrollSpy.prototype.refresh = function () {
+      var that          = this
+      var offsetMethod  = 'offset'
+      var offsetBase    = 0
+
+      this.offsets      = []
+      this.targets      = []
+      this.scrollHeight = this.getScrollHeight()
+
+      if (!$.isWindow(this.$scrollElement[0])) {
+        offsetMethod = 'position'
+        offsetBase   = this.$scrollElement.scrollTop()
+      }
+
+      this.$body
+        .find(this.selector)
+        .map(function () {
+          var $el   = $(this)
+          var href  = $el.data('target') || $el.attr('href')
+          var $href = /^#./.test(href) && $(escapeSelector(href)) // Need to escape selector.
+
+          return ($href
+            && $href.length
+            && $href.is(':visible')
+            && [[$href[offsetMethod]().top + offsetBase, href]]) || null
+        })
+        .sort(function (a, b) { return a[0] - b[0] })
+        .each(function () {
+          that.offsets.push(this[0])
+          that.targets.push(this[1])
+        })
+
+
+    }
+
+    ScrollSpy.prototype.process = function () {
+      var scrollTop    = this.$scrollElement.scrollTop() + this.options.offset
+      var scrollHeight = this.getScrollHeight()
+      var maxScroll    = this.options.offset + scrollHeight - this.$scrollElement.height()
+      var offsets      = this.offsets
+      var targets      = this.targets
+      var activeTarget = this.activeTarget
+      var i
+
+      if (this.scrollHeight != scrollHeight) {
+        this.refresh()
+      }
+
+      if (scrollTop >= maxScroll) {
+        return activeTarget != (i = targets[targets.length - 1]) && this.activate(i)
+      }
+
+      if (activeTarget && scrollTop < offsets[0]) {
+        $(this.selector).trigger('clear.bs.scrollspy')  // Add a custom event.
+        this.activeTarget = null
+        return this.clear()
+      }
+
+      for (i = offsets.length; i--;) {
+        activeTarget != targets[i]
+          && scrollTop >= offsets[i]
+          && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
+          && this.activate(targets[i])
+      }
+    }
+
+    ScrollSpy.prototype.activate = function (target) {
+      this.activeTarget = target
+
+      this.clear()
+
+      var selector = this.selector +
+        '[data-target="' + target + '"],' +
+        this.selector + '[href="' + target + '"]'
+
+      var active = $(selector)
+        .parents('li')
+        .addClass('active')
+
+      if (active.parent('.dropdown-menu').length) {
+        active = active
+          .closest('li.dropdown')
+          .addClass('active')
+      }
+
+      active.trigger('activate.bs.scrollspy')
+    }
+
+    ScrollSpy.prototype.clear = function () {
+      $(this.selector)
+        .parentsUntil(this.options.target, '.active')
+        .removeClass('active')
+    }
+
+
+    // SCROLLSPY PLUGIN DEFINITION
+    // ===========================
+
+    function Plugin(option) {
+      return this.each(function () {
+        var $this   = $(this)
+        var data    = $this.data('bs.scrollspy')
+        var options = typeof option == 'object' && option
+
+        if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
+        if (typeof option == 'string') data[option]()
+      })
+    }
+
+    var old = $.fn.scrollspy
+
+    $.fn.scrollspy             = Plugin
+    $.fn.scrollspy.Constructor = ScrollSpy
+
+
+    // SCROLLSPY NO CONFLICT
+    // =====================
+
+    $.fn.scrollspy.noConflict = function () {
+      $.fn.scrollspy = old
+      return this
+    }
+
+
+    // SCROLLSPY DATA-API
+    // ==================
+
+    $(window).on('load.bs.scrollspy.data-api', function () {
+      $('[data-spy="scroll"]').each(function () {
+        var $spy = $(this)
+        Plugin.call($spy, $spy.data())
+      })
+    })
+
+  }(jQuery);
+</script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var $sidebarInner = $('.sidebar-inner');
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.didShow', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0 && isDesktop()) {
+        setTimeout(function () {
+          $('.sidebar-toggle').trigger('click');
+        }, 800);
+      }
+    });
+  </script>
+
+
+
+
+  
+
+  
+  
+  
+
+  
+
+    
+      
+    
+
+    <script type="text/javascript">
+      var disqus_shortname = 'erichua-githubio';
+      var disqus_identifier = '2017/02/08/图灵机器人api接入nao机器/';
+      var disqus_url = 'http://yoursite.com/2017/02/08/图灵机器人api接入nao机器/';
+
+      (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }());
+    </script>
+  
+
+
+
+
+  
+</body>
+</html>

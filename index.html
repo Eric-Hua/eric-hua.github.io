@@ -390,6 +390,94 @@
           
           
             
+              <a class="post-title-link" href="/2017/01/07/Prophet初探/">
+                Prophet初探
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于 2017-01-07
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2017/01/07/Prophet初探/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/07/Prophet初探/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>先给看个酷炫的图<br><img src="http://op4i3evq7.bkt.clouddn.com/quick_start_26_0.png" alt="enter image description here"></p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>官方的安装教程在<a href="https://facebookincubator.github.io/prophet/docs/installation.html" target="_blank" rel="external">这里</a>但是，按照官方的安装教程是<strong>安装不成功的</strong>说起来都是痛，<br>以下是正确的安装步骤(python3.5 64位环境)：</p>
+<ol>
+<li>安装C++编译器<a href="http://landinghub.visualstudio.com/visual-cpp-build-tools" target="_blank" rel="external">]Visual C++ Build Tools</a></li>
+<li>安装pystan 推荐清华源(使用pip install pystan -i <a href="https://pypi.tuna.tsinghua.edu.cn/simple)手打的，不保证对。" target="_blank" rel="external">https://pypi.tuna.tsinghua.edu.cn/simple)手打的，不保证对。</a></li>
+<li>安装fbprophet,齐活。<h1 id="快速使用"><a href="#快速使用" class="headerlink" title="快速使用"></a>快速使用</h1>对原理有兴趣的，可以戳<a href="https://facebookincubator.github.io/prophet/static/prophet_paper_20170113.pdf" target="_blank" rel="external">这里</a>暂时我只把它当成一个黑箱子使用。<br>首先是数据，这里选用的是随机生成的web统计数据，首先我们加载数据：<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- encoding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> fbprophet <span class="keyword">import</span> Prophet</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line">data_file = <span class="string">"data_trend.csv"</span></div><div class="line">df = pd.read_csv(data_file, encoding=<span class="string">"utf-8"</span>)</div><div class="line">df.head()</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><img src="http://op4i3evq7.bkt.clouddn.com/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20170507100133.png" alt="enter image description here"><br>主要有上面这几个字段。<br>我们想看看浏览次数随时间的变化情况<br>单独取出<code>时段</code>， <code>独立访客</code>数据。另外我们的数据是倒序的，还需要按时间顺序回来，先画个图看看。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">df_pv = df[[<span class="string">"时段"</span>, <span class="string">"独立访客"</span>]]</div><div class="line">sort_df = df_pv.sort_values(by=<span class="string">"时段"</span>)</div><div class="line">sort_df.set_index(<span class="string">"时段"</span>).plot()</div><div class="line">plt.show()</div></pre></td></tr></table></figure></p>
+<p><img src="http://op4i3evq7.bkt.clouddn.com/figure_1.png" alt="enter image description here"><br>能大体看出独立访客数随时间的变化趋势，但是这个图的图例显示不正常，在开头再加上这两行<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">plt.rcParams[<span class="string">'font.sans-serif'</span>]=[<span class="string">'SimHei'</span>] <span class="comment">#用来正常显示中文标签</span></div><div class="line">plt.rcParams[<span class="string">'axes.unicode_minus'</span>]=<span class="keyword">False</span></div></pre></td></tr></table></figure></p>
+<p>简单来说就是定义图的字体。</p>
+<h1 id="预测"><a href="#预测" class="headerlink" title="预测"></a>预测</h1><p>prophet的API有点类似<code>scikit-learn</code>，常规流程，先<code>fit</code>数据，然后<code>predict</code>新的趋势。<br>首先我们修改column名称创建第一个预测模型<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sort_df.columns = [<span class="string">"ds"</span>, <span class="string">"y"</span>]</div><div class="line">sort_df[<span class="string">'y'</span>] = np.log(sort_df[<span class="string">'y'</span>])</div><div class="line">m1 = Prophet()</div><div class="line">m1.fit(sort_df)</div></pre></td></tr></table></figure></p>
+<p>使用<code>make_future_dataframe</code>告诉prophet需要预测多久以后的数据，在这个例子中，我们选择预测未来一年的独立访客数。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">futures1 = m1.make_future_dataframe(periods=<span class="number">365</span>)</div><div class="line">forecast1 = m1.predict(futures1)</div><div class="line">forecast1[[<span class="string">'ds'</span>, <span class="string">'yhat'</span>, <span class="string">'yhat_lower'</span>, <span class="string">'yhat_upper'</span>]].tail()</div></pre></td></tr></table></figure></p>
+<p>forecast1 是dataframe格式的数据，如下：<br><img src="http://op4i3evq7.bkt.clouddn.com/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20170507104023.png" alt="enter image description here"><br><code>Prophet</code>在做预测的时候做了log处理，还原后数据如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">print(np.exp(forecast1[[<span class="string">'yhat'</span>, <span class="string">'yhat_lower'</span>, <span class="string">'yhat_upper'</span>]].tail()))</div><div class="line"></div><div class="line">console:</div><div class="line">             yhat  yhat_lower     yhat_upper</div><div class="line"><span class="number">630</span>  <span class="number">10584.491634</span>  <span class="number">212.320650</span>  <span class="number">647084.467489</span></div><div class="line"><span class="number">631</span>  <span class="number">11077.641554</span>  <span class="number">218.018125</span>  <span class="number">671727.514255</span></div><div class="line"><span class="number">632</span>  <span class="number">11121.285237</span>  <span class="number">219.600455</span>  <span class="number">658814.011148</span></div><div class="line"><span class="number">633</span>  <span class="number">10834.162204</span>  <span class="number">215.267186</span>  <span class="number">660137.259109</span></div><div class="line"><span class="number">634</span>  <span class="number">10904.075380</span>  <span class="number">201.501246</span>  <span class="number">678710.749914</span></div></pre></td></tr></table></figure></p>
+<p>作图<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">m1.plot(forecast1)</div></pre></td></tr></table></figure></p>
+<p><img src="http://op4i3evq7.bkt.clouddn.com/figure_2.png" alt="enter image description here"><br>略微有点崩溃，猜测原因是数据量太小，另外波动有异常，所以预测的最大最小值差距比较大。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">m1.plot_components(forecast1)</div></pre></td></tr></table></figure></p>
+<p><img src="http://op4i3evq7.bkt.clouddn.com/figure_2-1.png" alt="enter image description here"><br>能看出天还有星期的一个趋势。基本介绍就到这了，要继续研究的可以戳<a href="https://facebookincubator.github.io/prophet/" target="_blank" rel="external">这里</a><br><strong>Have Fun~~</strong></p>
+
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python-prophet/"> #Python, prophet </a>
+          
+        </div>
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2016/12/03/SVM对THUCNews数据集进行分类/">
                 使用gensim和SVM对THUCNews数据集进行分类
               </a>
@@ -995,7 +1083,7 @@
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-count">10</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1009,7 +1097,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-count">10</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
